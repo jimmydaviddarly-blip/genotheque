@@ -1,0 +1,7 @@
+node_modules
+dist
+tools/cache
+release
+# Réglages locaux de l outil de développement et journal interne : restent sur ce PC.
+.claude/
+docs/

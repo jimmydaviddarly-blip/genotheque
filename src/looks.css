@@ -1,0 +1,277 @@
+/* Direction visuelle « Verre », proposée par l'art director et retenue par le propriétaire le 2026-11-11 :
+   cartes en verre dépoli sur un fond indigo à halos doux, reflet qui suit le doigt sur les tuiles.
+   Chargé après style.css, ce fichier en remplace les couleurs, polices et ombres. */
+
+:root {
+  --bg: #eaf0fb; --bg-2: #f1ecff; --card: rgba(255, 255, 255, 0.72); --ink: #111a33; --ink-2: #4a5675; --line: #d5dcee;
+  --accent: #3446c9; --accent-soft: #e1e6fb; --bar: #5b6cf0;
+  --bad: #c62828; --risk: #a94c06; --mixed: #8a5a00; --good: #1b7a3d; --info: #1d5fbf;
+  --t-teal-bg: rgba(211, 241, 238, 0.85); --t-teal-ink: #0b4a47;
+  --t-violet-bg: rgba(230, 225, 251, 0.85); --t-violet-ink: #35248a;
+  --t-coral-bg: rgba(255, 226, 216, 0.85); --t-coral-ink: #7c2a12; --coral: #e05a2b;
+  --body-fill: rgba(255, 255, 255, 0.7); --body-line: #9aa6cc; --tabbar: rgba(255, 255, 255, 0.6);
+  --glass-edge: rgba(255, 255, 255, 0.6);
+  --halo-1: rgba(43, 181, 166, 0.18); --halo-2: rgba(124, 92, 255, 0.18);
+  --radius-lg: 20px;
+  --shadow-1: 0 14px 34px -14px rgba(40, 60, 140, 0.28);
+  --shadow-2: 0 18px 40px -12px rgba(40, 60, 140, 0.36);
+  --font-title: 'Plus Jakarta Sans Variable', system-ui, sans-serif;
+  --font-body: 'Inter Variable', system-ui, sans-serif;
+  --helix-1: #3446c9; --helix-2: #2bb5a6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0a1022; --bg-2: #141a3a; --card: rgba(255, 255, 255, 0.06); --ink: #e8ecfb; --ink-2: #9aa6cc; --line: #2a3359;
+    --accent: #8ea2ff; --accent-soft: #1e2760; --bar: #8ea2ff;
+    --bad: #f87171; --risk: #fb923c; --mixed: #fbbf24; --good: #4ade80; --info: #60a5fa;
+    --t-teal-bg: rgba(15, 59, 59, 0.8); --t-teal-ink: #bff4ee;
+    --t-violet-bg: rgba(42, 32, 96, 0.8); --t-violet-ink: #dcd5ff;
+    --t-coral-bg: rgba(74, 33, 24, 0.8); --t-coral-ink: #ffd9cb; --coral: #fb923c;
+    --body-fill: rgba(255, 255, 255, 0.05); --body-line: #4a5590; --tabbar: rgba(10, 16, 34, 0.7);
+    --glass-edge: rgba(255, 255, 255, 0.1);
+    --shadow-1: 0 14px 34px -14px rgba(0, 0, 0, 0.6); --shadow-2: 0 18px 40px -12px rgba(0, 0, 0, 0.7);
+    --helix-1: #8ea2ff; --helix-2: #5eead4;
+  }
+}
+
+body {
+  background:
+    radial-gradient(60% 40% at 15% 10%, var(--halo-1), transparent 70%),
+    radial-gradient(55% 40% at 90% 30%, var(--halo-2), transparent 70%),
+    linear-gradient(180deg, var(--bg), var(--bg-2));
+  background-attachment: fixed;
+  background-color: var(--bg);
+}
+h1, .brand { font-weight: 700; }
+
+/* Verre dépoli, réservé aux grandes surfaces : le flou coûte cher sur un vieux téléphone,
+   les tuiles et pastilles gardent un fond teinté sans flou. */
+.card, .hits, .search input {
+  backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid var(--glass-edge);
+}
+.tile, .chip, .ochip, .body-card { border: 1px solid var(--glass-edge); }
+/* Les fiches longues restent presque opaques pour la lecture. */
+.page > .card { background: color-mix(in srgb, var(--card) 60%, var(--bg) 40%); }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root { --card: #f8faff; }
+  @media (prefers-color-scheme: dark) { :root { --card: #151c36; } }
+}
+
+/* Signature : un reflet qui suit le doigt sur les tuiles (--mx, --my posés par main.js). */
+.tile { position: relative; overflow: hidden; }
+.tile::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.25s;
+  background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 30%), rgba(255, 255, 255, 0.35), transparent 60%);
+}
+.tile:active::after { opacity: 1; }
+@media (hover: hover) { .tile:hover::after { opacity: 1; } }
+
+/* Explorer, piste 2 retenue le 2026-11-11 : tuiles en verre neutre, la couleur de la section
+   n'est portée que par la pastille de l'icône (gènes indigo, maladies rares violet, cancers corail). */
+:root {
+  --sec-genes: #3446c9; --sec-rare: #7c3aed; --sec-cancer: #b8441a; --sec-icon: #ffffff;
+  --tile-glass: rgba(255, 255, 255, 0.78);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sec-genes: #8ea2ff; --sec-rare: #b69cff; --sec-cancer: #fb923c; --sec-icon: #0a1022;
+    --tile-glass: rgba(255, 255, 255, 0.07);
+  }
+}
+.tile.teal { --sec: var(--sec-genes); }
+.tile.violet { --sec: var(--sec-rare); }
+.tile.teal, .tile.violet, .body-card { background: var(--tile-glass); color: var(--ink); }
+.tile small, .body-card small { color: var(--ink-2); opacity: 1; }
+.tile-ic {
+  display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 50%;
+  background: var(--sec, var(--accent)); color: var(--sec-icon); margin-bottom: 8px;
+  box-shadow: 0 4px 12px -4px var(--sec, var(--accent));
+}
+.tile-ic svg { width: 20px; height: 20px; margin: 0; }
+.body-card strong { color: var(--sec-cancer); }
+/* Raccourcis du haut : même verre, texte à la couleur de la section. */
+.jump .teal, .jump .violet, .jump .coral { background: var(--tile-glass); border: 1px solid var(--glass-edge); }
+.jump .teal { color: var(--sec-genes); }
+.jump .violet { color: var(--sec-rare); }
+.jump .coral { color: var(--sec-cancer); }
+
+/* Choix en boutons groupés (langue, thème, tuiles de l'Explorer). */
+.lang-switch { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px; border-radius: 14px; background: var(--accent-soft); width: fit-content; max-width: 100%; }
+.lang-switch button { font: inherit; font-size: 0.92rem; border: 0; border-radius: 10px; padding: 8px 14px; background: transparent; color: var(--ink); cursor: pointer; }
+.lang-switch button.on { background: var(--card); color: var(--accent); font-weight: 600; box-shadow: var(--shadow-1); }
+.card .kicker:first-of-type { margin-top: 4px; }
+
+/* Bouton clair / sombre de l'accueil : lune en clair, soleil en sombre. */
+.brand-row .brand { margin-right: auto; }
+.theme-btn { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; padding: 0; align-self: center; }
+.theme-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.theme-btn .ic-moon { fill: currentColor; stroke: none; }
+.theme-btn .ic-sun { display: none; }
+@media (prefers-color-scheme: dark) {
+  .theme-btn .ic-sun { display: block; }
+  .theme-btn .ic-moon { display: none; }
+}
+
+/* Chiffres clés de l'accueil. */
+.figures { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.figure { display: flex; flex-direction: column; gap: 2px; padding: 12px; border-radius: 14px; background: var(--tile-glass); border: 1px solid var(--glass-edge); color: var(--ink); text-decoration: none; }
+.figure strong { font-family: 'Plus Jakarta Sans Variable', sans-serif; font-size: 1.35rem; color: var(--accent); font-variant-numeric: tabular-nums; }
+.figure small { color: var(--ink-2); font-size: 0.8rem; line-height: 1.3; }
+
+/* Ce que contient chaque fiche. */
+.guide { margin-top: 18px; }
+.guide-block + .guide-block { border-top: 1px solid var(--line); margin-top: 6px; }
+.guide-block .kicker { margin: 12px 0 6px; }
+.guide-block .kicker a { text-transform: none; letter-spacing: 0; font-weight: 500; }
+.guide ul { list-style: none; margin: 0; padding: 0; }
+.guide li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 5px 0; font-size: 0.92rem; }
+.guide li small { flex: none; max-width: 45%; text-align: right; color: var(--ink-2); font-size: 0.78rem; }
+
+/* Explorer, piste 3 au choix (« Colorées ») : tuiles pleines, la teinte de la section s'éclaircit
+   de tuile en tuile ; texte blanc. */
+:root {
+  --p3-genes-1: #3446c9; --p3-genes-2: #6378e6;
+  --p3-rare-1: #6b3fc9; --p3-rare-2: #9a74e6;
+  --p3-can-1: #a83c15; --p3-can-2: #c9552a;
+}
+[data-look="vif"] .mosaic .tile { color: #fff; border-color: transparent; }
+[data-look="vif"] .mosaic .tile small { color: rgba(255, 255, 255, 0.86); }
+[data-look="vif"] .mosaic .tile .tile-ic { background: rgba(255, 255, 255, 0.2); color: #fff; box-shadow: none; }
+[data-look="vif"] .mosaic .tile.teal { background: color-mix(in srgb, var(--p3-genes-1) calc(100% - var(--i, 0) * 20%), var(--p3-genes-2)); }
+[data-look="vif"] .mosaic .tile.violet { background: color-mix(in srgb, var(--p3-rare-1) calc(100% - var(--i, 0) * 20%), var(--p3-rare-2)); }
+[data-look="vif"] .body-card { background: linear-gradient(135deg, var(--p3-can-1), var(--p3-can-2)); color: #fff; }
+[data-look="vif"] .body-card strong { color: #fff; }
+[data-look="vif"] .body-card small { color: rgba(255, 255, 255, 0.86); }
+[data-look="vif"] .jump .teal { background: var(--p3-genes-1); color: #fff; }
+[data-look="vif"] .jump .violet { background: var(--p3-rare-1); color: #fff; }
+[data-look="vif"] .jump .coral { background: var(--p3-can-1); color: #fff; }
+[data-look="vif"] .mosaic .tile:nth-child(4n+2) { --i: 1; }
+[data-look="vif"] .mosaic .tile:nth-child(4n+3) { --i: 2; }
+[data-look="vif"] .mosaic .tile:nth-child(4n) { --i: 3; }
+.look-row { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+
+/* ---------- Passe UX du 2026-11-11 (revue de l'art director) ---------- */
+
+/* Échelle des titres (rapport 1,25, plancher 12 px) : marque 36, page 28, carte 20, sous-titre 17. */
+.brand { font-size: 2.25rem; line-height: 1.1; }
+.page-title, .page-head h1 { font-size: 1.75rem; line-height: 1.15; }
+.card > h2, .card-head h2, .shelf { font-size: 1.25rem; line-height: 1.25; }
+h3 { font-size: 1.0625rem; }
+h3 .big { font-size: 1.25rem; }
+.tile strong { font-size: 1.0625rem; }
+.shelf small, .tile small, .guide li small, .figure small, .drugs small, .drug-row small, .legend3d, .tag, .source { font-size: 0.8125rem; }
+.kicker { font-size: 0.75rem; letter-spacing: 0.06em; }
+.tabs a, .scorebars .tag, .symptoms .tag { font-size: 0.75rem; }
+.lang { font-size: 0.75rem; }
+.figure strong { font-size: 1.5rem; }
+
+/* Tuiles colorées : fins de dégradé assez sombres pour le texte blanc (≥ 4,5:1). */
+:root { --p3-genes-2: #4b5fd6; --p3-rare-2: #8250d8; --p3-can-2: #b84a22; }
+[data-look="vif"] .mosaic .tile small, [data-look="vif"] .body-card small { color: rgba(255, 255, 255, 0.95); }
+
+/* Étoile des favoris : ambre foncé en clair (contraste ≥ 3:1), ambre vif en sombre. */
+:root { --star: #b45309; }
+@media (prefers-color-scheme: dark) { :root { --star: #fbbf24; } }
+.fav.on, .stars { color: var(--star); }
+
+/* Focus clavier : contour net qui garde l'arrondi de chaque élément. */
+/* (règle dans motion.css : le contour suit l'arrondi propre de chaque élément) */
+.search input:focus { outline: 2px solid var(--accent); outline-offset: 2px; box-shadow: none; }
+
+/* Cibles tactiles d'au moins 44 px. */
+.theme-btn { width: 44px; height: 44px; flex: none; }
+.help-link, .lang-btn, .chip, .ochip, .links a, .more-btn, .lang-switch button { min-height: 44px; display: inline-flex; align-items: center; }
+.help-link { padding: 0 16px; }
+.complete { min-height: 36px; padding: 8px 12px; }
+.help-btn { width: 32px; height: 32px; position: relative; }
+.help-btn::after { content: ''; position: absolute; inset: -6px; }
+.gchip { padding: 10px 10px; }
+.gene-chips { gap: 8px; }
+.crumbs a { display: inline-block; padding: 10px 4px; }
+
+/* Ligne de confiance de l'accueil. */
+.trust { font-size: 0.8125rem; color: var(--ink-2); margin: 10px 2px 0; line-height: 1.45; }
+
+/* Le flou coûte cher sur les vieux téléphones : réservé à l'accueil et à l'Explorer. */
+.page > .card { -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+/* Bouton de langue de l'accueil, même gabarit que le bouton de thème. */
+.lang-chip { font: 700 0.8125rem var(--font-title, inherit); letter-spacing: 0.04em; color: var(--accent); }
+
+/* « Ce que vous trouverez » en trois volets repliés. */
+.guide details.guide-block > summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; list-style: none; }
+.guide details.guide-block > summary::-webkit-details-marker { display: none; }
+.guide details.guide-block > summary small { color: var(--ink-2); font-size: 0.8125rem; display: flex; align-items: center; gap: 8px; }
+.guide details.guide-block > summary small::after { content: '›'; font-size: 1.2rem; transition: transform 0.2s; }
+.guide details[open].guide-block > summary small::after { transform: rotate(90deg); }
+.guide-ex { display: inline-flex; align-items: center; min-height: 44px; font-size: 0.9rem; text-decoration: none; }
+
+/* Rangée du haut de l'accueil : marque, thème, langue et aide tiennent sur un téléphone étroit. */
+.brand-row { gap: 8px; align-items: center; }
+.brand { font-size: clamp(1.9rem, 8.5vw, 2.25rem); }
+.help-q { width: 44px; height: 44px; padding: 0; justify-content: center; border-radius: 50%; font-weight: 700; flex: none; }
+
+/* ---------- Grand écran, piste B (2026-11-11) : onglets en rail, recherche à gauche, fiche à droite ---------- */
+#side { display: none; }
+@media (min-width: 900px) {
+  body { display: grid; grid-template-columns: 92px 320px minmax(0, 1fr); padding-bottom: 0; }
+  .tabs {
+    position: sticky; top: 0; grid-column: 1; grid-row: 1; height: 100vh; padding: 20px 8px;
+    flex-direction: column; justify-content: flex-start; gap: 6px; border-top: 0; border-right: 1px solid var(--glass-edge);
+  }
+  .tabs a { flex: none; height: 68px; border-radius: 14px; }
+  #side {
+    display: block; grid-column: 2; grid-row: 1; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    padding: 20px 16px 32px; border-right: 1px solid var(--glass-edge); background: color-mix(in srgb, var(--card) 45%, transparent);
+  }
+  .side-brand { display: block; font: 700 1.5rem var(--font-title); color: var(--ink); text-decoration: none; margin: 4px 0 14px; letter-spacing: -0.02em; }
+  #side .search input { font-size: 1rem; }
+  #side .hits a[aria-current="page"] { outline: 2px solid var(--accent); outline-offset: -2px; }
+  #side .kicker { margin-top: 18px; }
+  #app { grid-column: 3; grid-row: 1; width: 100%; max-width: 1120px; margin: 0; padding: 28px 36px 56px; box-sizing: border-box; }
+  /* L'accueil laisse la recherche au panneau et devient une page de présentation. */
+  .home-search, .search-page > .q-results { display: none; }
+  .search-page .examples { display: block !important; }
+  .toast { bottom: 24px; }
+  .body-wrap .body { width: min(40vw, 420px); }
+}
+/* Fiches sur deux colonnes quand la place le permet (cartes rangées en colonnes, sans se couper). */
+@media (min-width: 1280px) {
+  .page:has(> .page-head + .disclaimer) { column-count: 2; column-gap: 18px; }
+  .page:has(> .page-head + .disclaimer) > * { break-inside: avoid; }
+  .page:has(> .page-head + .disclaimer) > .page-head,
+  .page:has(> .page-head + .disclaimer) > .disclaimer { column-span: all; }
+  .search-page .figures { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Bouton Favori : pastille avec étoile contour (pas gardé) ou pleine (gardé) et le mot « Favori ». */
+.fav {
+  width: auto; height: 44px; display: inline-flex; align-items: center; gap: 6px; padding: 0 14px 0 11px;
+  border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px;
+  font: 600 0.875rem/1 var(--font-body, inherit);
+}
+.fav svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.fav.on { color: var(--star); border-color: var(--star); background: var(--accent-soft); }
+.fav.on svg { fill: currentColor; }
+.page-head .share + .fav { margin-left: 0; }
+
+/* Cancers liés à un gène : les noms de maladies se suivent dans une phrase, comme du texte, au lieu de s'empiler. */
+.drug-row small a { display: inline; padding: 0; gap: 0; justify-content: flex-start; color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.drug-row small a:active { background: none; }
+.drug-row small em { font-style: normal; color: var(--ink-2); }
+.drug-row small { line-height: 1.5; margin-top: 2px; }
+
+/* Aide quand la saisie est la notation d'une mutation. */
+.notation-help p, .notation-help li { font-size: 0.92rem; line-height: 1.5; }
+.notation-help ul { margin: 6px 0 10px; padding-left: 20px; }
+.notation-help .open-fiche { margin: 4px 0 8px; }
+
+/* Fréquences par projet : le nom, et dessous le pays ou la portée en petit. */
+.counts.pops li > span:first-child small { display: block; color: var(--ink-2); font-size: 0.75rem; line-height: 1.3; }
+.counts.pops li { grid-template-columns: minmax(0, 1.5fr) minmax(48px, 0.8fr) 64px; }
+
+/* Rôle dans la cellule : termes de la Gene Ontology, avec le nombre d'annotations en petit. */
+.goterms { gap: 8px; margin-bottom: 6px; }
+.goterms li { flex-direction: row; justify-content: space-between; align-items: baseline; gap: 12px; }
+.goterms small { flex: none; }

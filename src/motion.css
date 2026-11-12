@@ -1,0 +1,83 @@
+/* Socle commun aux trois directions visuelles : relief, mouvement, chargement, onglets.
+   Les couleurs, polices et ombres viennent des variables de style.css et looks.css. */
+
+/* Relief : cartes et tuiles posées sur la page. */
+.card, .hits, .tile, .body-card, .trial-counts span { box-shadow: var(--shadow-1); }
+.card, .hits { border-radius: var(--radius-lg); }
+.tile, .body-card { border-radius: var(--radius-lg); }
+
+/* Entrée en douceur : les cartes montent légèrement, l'une après l'autre. */
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.page > .card, .page > section, .mosaic > .tile, .hits, .search-page > *, .body-card, .organ-chips {
+  animation: rise 0.42s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.page > :nth-child(2) { animation-delay: 0.03s; }
+.page > :nth-child(3) { animation-delay: 0.06s; }
+.page > :nth-child(4) { animation-delay: 0.09s; }
+.page > :nth-child(5) { animation-delay: 0.12s; }
+.page > :nth-child(n + 6) { animation-delay: 0.15s; }
+.mosaic > .tile:nth-child(2n) { animation-delay: 0.04s; }
+.mosaic > .tile:nth-child(3n) { animation-delay: 0.08s; }
+
+/* Effet 3D au toucher : la tuile s'enfonce et s'incline vers le doigt (--tx, --ty posés par main.js). */
+.mosaic { perspective: 900px; }
+.tile, .body-card, .hits a, .tree a, .drugs a, .chip, .ochip {
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.18s, background-color 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tile:active, .body-card:active {
+  transform: scale(0.97) rotateX(var(--ty, 0deg)) rotateY(var(--tx, 0deg));
+  box-shadow: var(--shadow-2);
+}
+@media (hover: hover) {
+  .tile:hover, .body-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
+}
+.hits a:active, .tree a:active, .drugs a:active { background: var(--accent-soft); }
+.chip:active, .ochip:active { transform: scale(0.96); }
+
+/* Barres : elles se remplissent à l'apparition. */
+@keyframes grow { from { transform: scaleX(0); } }
+.bar i { transform-origin: left; animation: grow 0.6s cubic-bezier(0.22, 1, 0.36, 1) both 0.1s; }
+
+/* Chargement : lignes grises qui scintillent au lieu de trois points. */
+.loading { display: grid; gap: 8px; padding: 6px 0; justify-content: stretch; }
+.loading span {
+  width: auto; height: 12px; border-radius: 6px; opacity: 1;
+  background: linear-gradient(90deg, var(--line) 0%, var(--accent-soft) 50%, var(--line) 100%);
+  background-size: 200% 100%; animation: shimmer 1.2s linear infinite;
+}
+.loading span:nth-child(2) { width: 82%; animation-delay: 0s; }
+.loading span:nth-child(3) { width: 64%; animation-delay: 0s; }
+@keyframes shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+/* Onglets : un repère glisse sous l'onglet actif. */
+.tabs { backdrop-filter: saturate(1.4) blur(12px); -webkit-backdrop-filter: saturate(1.4) blur(12px); background: var(--tabbar, var(--card)); }
+.tabs a { position: relative; isolation: isolate; transition: color 0.2s; }
+.tabs a::before {
+  content: ''; position: absolute; top: 6px; width: 44px; height: 30px; border-radius: 15px;
+  background: var(--accent-soft); opacity: 0; transform: scale(0.6); transition: opacity 0.2s, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: -1;
+}
+.tabs a.on::before { opacity: 1; transform: none; }
+.tabs a.on { font-weight: 600; }
+
+/* Hélice d'ADN de l'accueil : les barreaux pivotent lentement, comme une hélice qui tourne. */
+.helix-wrap { overflow: hidden; margin: 4px 0 6px; }
+.helix { display: block; width: 1360px; max-width: none; height: 56px; }
+.helix .strand { fill: none; stroke-width: 2.2; stroke-linecap: round; }
+.helix .s1 { stroke: var(--helix-1, var(--accent)); }
+.helix .s2 { stroke: var(--helix-2, var(--bar)); opacity: 0.85; }
+.helix .rung { stroke: var(--ink-2); stroke-width: 1.4; stroke-linecap: round; opacity: 0.35; transform-box: fill-box; transform-origin: center; animation: spin 4.8s ease-in-out infinite; }
+@keyframes spin { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.15); } }
+.helix .flow { animation: drift 9s linear infinite; }
+@keyframes drift { to { transform: translateX(-80px); } }
+
+/* Clavier : contour visible sur l'élément ciblé. */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* Raccourcis de l'Explorer : un libellé sur une seule ligne, même sur un petit écran. */
+.jump button { white-space: nowrap; font-size: 0.84rem; padding: 10px 4px; letter-spacing: -0.01em; }
