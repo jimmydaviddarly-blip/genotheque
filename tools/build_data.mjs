@@ -18,13 +18,31 @@ const HGNC = 'https://storage.googleapis.com/public-download-files/hgnc';
 // Familles HGNC montrées dans la vitrine (identifiants vérifiés le 2026-11-11).
 const FAMILIES = [3432, 2054, 177, 752, 516, 26, 348, 471, 862, 864, 639, 475];
 
+// Retente un téléchargement (les serveurs des bases répondent parfois 500 ou 503 un instant), avec une pause
+// de plus en plus longue : 5 s, 15 s, 45 s.
+async function fetchRetry(url, options) {
+  let derniere;
+  for (const pause of [0, 5000, 15000, 45000]) {
+    if (pause) await new Promise((r) => setTimeout(r, pause));
+    try {
+      const res = await fetch(url, options);
+      if (res.ok || (res.status < 500 && res.status !== 429)) return res;
+      derniere = new Error(`${url} : HTTP ${res.status}`);
+    } catch (err) {
+      derniere = err;
+    }
+    console.log(`nouvelle tentative pour ${url} (${derniere.message})`);
+  }
+  throw derniere;
+}
+
 async function cached(name, url) {
   const file = join(CACHE, name);
   try {
     await access(file);
   } catch {
     console.log(`téléchargement ${url}`);
-    const res = await fetch(url);
+    const res = await fetchRetry(url);
     if (!res.ok) throw new Error(`${url} : HTTP ${res.status}`);
     await writeFile(file, Buffer.from(await res.arrayBuffer()));
   }
@@ -83,7 +101,7 @@ function countCodes(node, set) {
 }
 
 async function buildOrphanet() {
-  const page = await (await fetch('https://www.orphadata.com/classifications/')).text();
+  const page = await (await fetchRetry('https://www.orphadata.com/classifications/')).text();
   const ids = [...new Set([...page.matchAll(/en_product3_(\d+)\.xml/g)].map((m) => Number(m[1])))].sort((a, b) => a - b);
   if (!ids.length) throw new Error('aucune classification trouvée sur orphadata.com');
 
@@ -226,7 +244,7 @@ async function buildBdpm() {
   const latin = async (name) => {
     const file = join(CACHE, name);
     try { await access(file); } catch {
-      const res = await fetch(`https://base-donnees-publique.medicaments.gouv.fr/download/file/${name}`, { headers: { 'user-agent': 'Mozilla/5.0' } });
+      const res = await fetchRetry(`https://base-donnees-publique.medicaments.gouv.fr/download/file/${name}`, { headers: { 'user-agent': 'Mozilla/5.0' } });
       if (!res.ok) throw new Error(`${name} : HTTP ${res.status}`);
       await writeFile(file, Buffer.from(await res.arrayBuffer()));
     }
@@ -266,7 +284,7 @@ async function buildBdpm() {
 
 async function buildCpic() {
   const url = 'https://api.cpicpgx.org/v1/pair_view?select=genesymbol,drugname,cpiclevel,guidelinename,guidelineurl&cpiclevel=in.(A,B)';
-  const res = await fetch(url);
+  const res = await fetchRetry(url);
   if (!res.ok) throw new Error(`CPIC : HTTP ${res.status}`);
   const genes = {};
   for (const p of await res.json()) {
@@ -293,7 +311,7 @@ async function buildHpoFr() {
 // ---------- Liens gène-maladie évalués par des experts (ClinGen, domaine public CC0) ----------
 
 async function buildClinGen() {
-  const res = await fetch('https://search.clinicalgenome.org/kb/gene-validity/download', { headers: { 'user-agent': 'Mozilla/5.0' } });
+  const res = await fetchRetry('https://search.clinicalgenome.org/kb/gene-validity/download', { headers: { 'user-agent': 'Mozilla/5.0' } });
   if (!res.ok) throw new Error(`ClinGen : HTTP ${res.status}`);
   const text = await res.text();
   const date = text.match(/FILE CREATED: (\d{4}-\d{2}-\d{2})/)?.[1] || new Date().toISOString().slice(0, 10);
@@ -317,14 +335,21 @@ async function buildClinGen() {
 }
 
 await mkdir(CACHE, { recursive: true });
-await buildHpoFr();
-await buildClinGen();
-await buildCpic();
-await buildBdpm();
-await buildDictionary();
-await buildFamilies();
-await buildOrphanet();
+const echecs = [];
+for (const [nom, construire] of [['HPO', buildHpoFr], ['ClinGen', buildClinGen], ['CPIC', buildCpic], ['Médicaments (BDPM)', buildBdpm],
+  ['Dictionnaire HGNC', buildDictionary], ['Familles de gènes', buildFamilies], ['Orphanet', buildOrphanet]]) {
+  try {
+    await construire();
+  } catch (err) {
+    console.error(`ÉCHEC ${nom} : ${err.message}. Le fichier précédent est gardé.`);
+    echecs.push(nom);
+  }
+}
 await buildFigures();
+if (echecs.length) {
+  console.error(`Sources non mises à jour : ${echecs.join(', ')}`);
+  process.exitCode = 2;
+}
 
 // Chiffres clés de l'accueil, comptés dans les fichiers qui viennent d'être produits.
 async function buildFigures() {
