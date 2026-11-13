@@ -60,7 +60,7 @@ jobs:
 
           "
           fi
-          branche="maj-donnees-$(date -u +%Y-%m)"
+          branche="maj-donnees-$(date -u +%F)"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$branche"
@@ -68,11 +68,14 @@ jobs:
           git add -A
           git commit -m "Mise à jour des données ($(date -u +%F))"
           git push origin "$branche"
-          gh pr create --base main --head "$branche" \
+          if ! gh pr create --base main --head "$branche" \
             --title "Mise à jour des données ($(date -u +%F))" \
             --body "${avertissement}Données regénérées automatiquement depuis les bases publiques (les tests sont passés). Cache du service worker : \`$nouveau_cache\`.
 
-          À relire avant de fusionner : la publication suit toute seule à la fusion. Pensez à passer la version (numéro et CHANGELOG) si le changement est notable."
+          À relire avant de fusionner : la publication suit toute seule à la fusion. Pensez à passer la version (numéro et CHANGELOG) si le changement est notable."; then
+            echo "::error::Les données à jour sont sur la branche $branche, mais la demande de fusion n'a pas pu s'ouvrir. Autorisez-la une fois pour toutes dans Settings > Actions > General > « Allow GitHub Actions to create and approve pull requests », ou ouvrez-la à la main : https://github.com/${GITHUB_REPOSITORY}/compare/${branche}?expand=1"
+            exit 1
+          fi
       - name: Signaler une source en échec
         if: steps.data.outcome == 'failure'
         run: |
