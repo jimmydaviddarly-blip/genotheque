@@ -112,6 +112,7 @@ npm run dev        # http://localhost:5180
 npm run build      # appli construite dans dist/
 npm run data       # régénère public/data depuis les bases (Orphanet, HGNC, HPO, ClinGen, CPIC, BDPM)
 npm run i18n       # liste les textes sans traduction anglaise
+npm test           # tests automatiques (recherche, cancers, populations, traductions, données, hygiène)
 ```
 
 - `src/api.js` : tous les appels aux bases, avec délai maximal et validation des identifiants.

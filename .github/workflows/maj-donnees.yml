@@ -1,0 +1,64 @@
+# Met à jour chaque mois les données embarquées (Orphanet, HGNC, HPO, ClinGen, CPIC, médicaments français),
+# les vérifie par les tests, et propose le changement dans une demande de fusion à relire.
+# La base des médicaments demande des données à jour ; Orphanet publie deux fois par an.
+name: Mise à jour des données
+
+on:
+  schedule:
+    - cron: '17 5 2 * *'   # le 2 de chaque mois, 5 h 17 (UTC)
+  workflow_dispatch:
+    inputs:
+      ouvrir_pr:
+        description: "Ouvrir une demande de fusion si les données ont changé (sinon, simple essai)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  maj:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Régénérer les données
+        run: npm run data
+      - name: Vérifier les données
+        run: npm test
+      - name: Ne garder que ce qui a vraiment changé
+        id: diff
+        run: |
+          changes=$(node tools/data_diff.mjs)
+          node tools/data_diff.mjs --restore > /dev/null
+          if [ -z "$changes" ]; then
+            echo "Rien de nouveau dans les bases : les données sont à jour."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Fichiers changés :"; echo "$changes"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Ouvrir la demande de fusion
+        if: steps.diff.outputs.changed == 'true' && (github.event_name == 'schedule' || inputs.ouvrir_pr)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          branche="maj-donnees-$(date -u +%Y-%m)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branche"
+          nouveau_cache=$(node tools/bump_cache.mjs)
+          git add -A
+          git commit -m "Mise à jour des données ($(date -u +%F))"
+          git push origin "$branche"
+          gh pr create --base main --head "$branche" \
+            --title "Mise à jour des données ($(date -u +%F))" \
+            --body "Données regénérées automatiquement depuis les bases publiques (les tests sont passés). Cache du service worker : \`$nouveau_cache\`.
+
+          À relire avant de fusionner : la publication suit toute seule à la fusion. Pensez à passer la version (numéro et CHANGELOG) si le changement est notable."

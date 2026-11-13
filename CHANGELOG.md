@@ -4,6 +4,13 @@ Les numéros suivent le principe `majeur.mineur.correctif` : un changement qui a
 
 *Versions follow `major.minor.patch`. Each version is a GitHub release with its own tag, so any of them can be restored.*
 
+## 0.7.1 · 2026-11-13
+
+### Sous le capot (aucun changement visible dans l'appli)
+- **Tests automatiques** (`npm test`, 45 tests) : reconnaissance de ce que l'on tape (numéro rs, notation d'une mutation, mots généraux), regroupement des cancers par organe, fréquences des projets de populations, dictionnaire des gènes (symboles, autres noms, fautes de frappe, complétion), noms de médicaments, traductions et typographie, cohérence des données embarquées, et un contrôle d'hygiène du dépôt (aucun caractère de contrôle caché, licence cohérente, version dans le CHANGELOG, politique de sécurité du contenu). Ils tournent avant chaque publication : une erreur les arrête.
+- **Mise à jour mensuelle des données** : le 2 de chaque mois, GitHub régénère les données (Orphanet, HGNC, HPO, ClinGen, CPIC, médicaments français), les vérifie par les tests et propose le changement dans une demande de fusion à relire, sans rien publier tout seul. Rien n'est proposé quand seules les dates changent.
+- Les règles de recherche vivent dans leur propre fichier, pour pouvoir être testées.
+
 ## 0.7.0 · 2026-11-12
 
 ### Licence
@@ -57,6 +64,13 @@ Première publication : fiches gène, variant et maladie à partir de 24 bases p
 ---
 
 ## English
+
+### 0.7.1 · 2026-11-13
+
+**Under the hood (nothing changes in the app)**
+- **Automated tests** (`npm test`, 45 tests): what you type is recognised correctly (rs number, mutation notation, general words), cancers are grouped by organ, population-project frequencies, the gene dictionary (symbols, aliases, typos, completion), drug names, translations and typography, consistency of the embedded data, and a repository hygiene check (no hidden control characters, consistent licence, version in the CHANGELOG, content security policy). They run before every publication: a failure stops it.
+- **Monthly data update**: on the 2nd of each month, GitHub regenerates the data (Orphanet, HGNC, HPO, ClinGen, CPIC, French medicines), checks it with the tests and proposes the change in a pull request to review, publishing nothing by itself. Nothing is proposed when only dates change.
+- Search rules live in their own file so they can be tested.
 
 ### 0.7.0 · 2026-11-12
 

@@ -1,7 +1,7 @@
 // Cache de l'appli : la page, son code et les données fixes de la vitrine restent disponibles
 // hors réseau. Les réponses des bases en ligne ne sont jamais mises en cache ici.
 // Changer CACHE à chaque publication pour que les téléphones prennent la nouvelle version.
-const CACHE = 'genotheque-v21';
+const CACHE = 'genotheque-v22';
 const SHELL = ['./', './manifest.webmanifest', './icon.svg', './favicon.svg', './favicon.ico', './icon-192.png', './icon-512.png',
   './icon-maskable-192.png', './icon-maskable-512.png', './apple-touch-icon.png',
   './data/familles/index.json', './data/orpha/index.json', './data/chiffres.json'];

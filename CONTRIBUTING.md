@@ -7,6 +7,8 @@ Merci de votre intérêt pour Génothèque.
 
 Les contributions sont publiées sous la même licence que le projet, **AGPL-3.0-or-later** (voir [NOTICE.md](NOTICE.md)). Le nom, le logo et l'icône de Génothèque restent réservés à son auteur.
 
+Avant de proposer un changement, lancez `npm test` : les tests doivent passer. Une mise à jour mensuelle des données tourne seule (voir `.github/workflows/maj-donnees.yml`).
+
 Trois règles ne bougent pas :
 
 1. Consultation seulement : pas de lecture de données génétiques personnelles, pas de calcul de risque.

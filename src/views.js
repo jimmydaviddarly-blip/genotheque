@@ -4,6 +4,7 @@ import { drugKey } from './drugkey.js';
 import { POPULATIONS, significance, GENE_TYPES, EFFECTS, VAR_TYPES, HELP, DISCLAIMER, stageLabel, trialPhase, reviewStars, scoreReading, byOrgan, tpmLevel, HPO_CATEGORIES, symptomFrequency, CLINGEN_CLASS, MOI } from './texts.js';
 import { groupCancers, isGenericDisease, strengthOf } from './cancers.js';
 import { cohortFrequencies, bestAllele } from './cohorts.js';
+import { RS, NOTATION, GENERAL_WORD, CANCER_WORD } from './search-rules.js';
 import { t, tn, pct, plural, nf, locale, isEn, setLang, appName } from './i18n.js';
 import { getTheme, getLook, setTheme, setLook, isDark } from './prefs.js';
 
@@ -11,7 +12,6 @@ import { getTheme, getLook, setTheme, setLook, isDark } from './prefs.js';
 export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 export { nf };
 
-const RS = /^rs\d+$/i;
 
 // ---------- Favoris (dans le téléphone) ----------
 
@@ -294,14 +294,6 @@ function helixSvg() {
   return `<div class="helix-wrap" aria-hidden="true"><svg class="helix" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
     <g class="flow">${rungs}<path class="strand s1" d="${wave(1)}"/><path class="strand s2" d="${wave(-1)}"/></g></svg></div>`;
 }
-
-// Notations d'une mutation : HGVS (c.68_69del, p.Cys61Gly, NM_007294.4:c.68_69del), coordonnées (chr17:43094000), transcrits.
-const NOTATION = /(^|[\s:])[cgmnr]\.\s*[\d*_(-]|(^|[\s:])p\.\s*\(?[A-Za-z]{3}\d|chr[0-9xym]+:\d|^(NM|NP|NC|NG|XM)_\d|^ENS[TP]\d/i;
-
-// Mots généraux : ils désignent une famille de maladies, pas un gène.
-const GENERAL_WORD = /^(cancers?|tum(eu|ou)rs?|carcinomes?|sarcomes?|leuc[ée]mies?|lymphomes?|neoplasms?|maladies?|syndromes?|diseases?|disorders?)$/i;
-
-const CANCER_WORD = /^(cancers?|tum(eu|ou)rs?|carcinomes?|sarcomes?|leuc[ée]mies?|lymphomes?|neoplasms?)$/i;
 
 // Champ de recherche avec complétion et résultats : sert à l'accueil et au panneau latéral du grand écran.
 export const searchBox = (value = '') => `<label class="search"><span class="sr">${t('Rechercher')}</span>
