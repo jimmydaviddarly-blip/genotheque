@@ -5,6 +5,7 @@ import { POPULATIONS, significance, GENE_TYPES, EFFECTS, VAR_TYPES, HELP, DISCLA
 import { groupCancers, isGenericDisease, strengthOf } from './cancers.js';
 import { cohortFrequencies, bestAllele } from './cohorts.js';
 import { RS, NOTATION, GENERAL_WORD, CANCER_WORD } from './search-rules.js';
+import { isCompleteNotation } from './hgvs.js';
 import { t, tn, pct, plural, nf, locale, isEn, setLang, appName } from './i18n.js';
 import { getTheme, getLook, setTheme, setLook, isDark } from './prefs.js';
 
@@ -295,6 +296,51 @@ function helixSvg() {
     <g class="flow">${rungs}<path class="strand s1" d="${wave(1)}"/><path class="strand s2" d="${wave(-1)}"/></g></svg></div>`;
 }
 
+// Résultats d'une notation de mutation : un variant par ligne, avec son numéro rs et ce que la notation change.
+function notationResults(mode, results) {
+  const items = results.map((r) => {
+    const gene = r.gene ? `${esc(r.gene)} · ` : '';
+    const effect = r.effect ? ` · ${esc(EFFECTS[r.effect] ? t(EFFECTS[r.effect]) : r.effect.replace(/_/g, ' '))}` : '';
+    const detail = `${gene}${esc(r.hgvs)}${r.protein ? ` · ${esc(r.protein)}` : ''}${effect}`;
+    if (!r.rs.length) {
+      const why = r.verified ? t('Notation valide, mais sans numéro rs dans dbSNP : il n\'y a pas de fiche à ouvrir.') : t('Le numéro rs n\'a pas pu être vérifié : le service Ensembl n\'a pas répondu. Réessayez plus tard.');
+      return `<li><div class="no-rs"><strong>${esc(r.hgvs)}</strong><small>${detail}</small><small>${why}</small></div></li>`;
+    }
+    return r.rs.map((rs) => `<li><a href="#/variant/${esc(rs)}"><strong>${esc(rs)}</strong><small>${detail}</small></a></li>`).join('');
+  }).join('');
+  const note = mode === 'direct'
+    ? t('Notation lue sur le transcrit de référence du gène (MANE Select). Vérifiez que c\'est bien le gène et le transcrit voulus : une même notation peut désigner des variants différents selon le transcrit.')
+    : t('Plusieurs variants de ClinVar correspondent à cette notation, parfois dans des gènes différents : choisissez le bon.');
+  return `<div class="notation-help"><p class="kicker">${mode === 'direct' ? t('Variant retrouvé') : t('Variants possibles')}</p>
+    <ul class="hits">${items}</ul>
+    <p class="muted small">${note}</p>
+    <p class="muted small">${t('Ne saisissez pas de données personnelles : ce que vous tapez est envoyé à VariantValidator, à Ensembl et à la NLM, qui voient l\'adresse internet de votre appareil.')}</p></div>`;
+}
+
+// Aide quand la notation est incomplète, introuvable, ou que les services ne répondent pas.
+function showNotationHelp(box, q, my, currentToken, why) {
+  const lead = {
+    incomplete: t('Continuez la saisie : la recherche attend de savoir ce qui change (par exemple c.68_69del ou p.Cys61Gly).'),
+    none: t('Aucun variant retrouvé pour cette notation. Vérifiez-la, ou cherchez par le nom du gène ou par le numéro rs.'),
+    error: t('Les services de conversion ne répondent pas pour l\'instant. Cherchez par le nom du gène ou par le numéro rs.'),
+  }[why];
+  box.innerHTML = `<div class="notation-help"><p class="kicker">${t('Notation d\'une mutation')}</p>
+    <p>${lead}</p>
+    <ul><li>${t('cherchez le nom du gène, par exemple BRCA1, puis ouvrez la liste de ses variants classés sur sa fiche ;')}</li>
+    <li>${t('ou tapez son numéro rs (par exemple rs80357906), qu\'on trouve dans ClinVar ou dbSNP.')}</li></ul>
+    <div class="notation-gene"></div>
+    <p class="muted small">${t('Ne saisissez pas de données personnelles : ce que vous tapez est envoyé aux bases publiques.')}</p></div>`;
+  // Si le nom du gène est dans la saisie (« BRCA1 c.68_69del »), on propose sa fiche.
+  const word = q.match(/(?:^|[\s:])([A-Za-z][A-Za-z0-9-]{1,9})(?=[:\s]|$)/)?.[1];
+  if (word) {
+    suggestGenesLocal(word).then((g) => {
+      const hit = g.find((x) => !x.typo && x.symbol === word.toUpperCase());
+      const slot = box.querySelector('.notation-gene');
+      if (hit && my === currentToken() && slot) slot.innerHTML = `<a class="open-fiche" href="#/gene/${encodeURIComponent(hit.symbol)}">${esc(t('Ouvrir la fiche du gène {symbol}', { symbol: hit.symbol }))} ›</a>`;
+    }).catch(() => {});
+  }
+}
+
 // Champ de recherche avec complétion et résultats : sert à l'accueil et au panneau latéral du grand écran.
 export const searchBox = (value = '') => `<label class="search"><span class="sr">${t('Rechercher')}</span>
       <input class="q" type="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${esc(t(SEARCH_HINT))}" value="${esc(value)}">
@@ -320,21 +366,14 @@ export function bindSearch(root, onQuery = () => {}) {
     // Notation d'une mutation (c.68_69del, p.Cys61Gly, chr17:43094000…) : pas encore comprise, on le dit
     // et on dit quoi taper à la place, au lieu d'un « aucun résultat » muet.
     if (NOTATION.test(q)) {
-      box.innerHTML = `<div class="notation-help"><p class="kicker">${t('Notation d\'une mutation')}</p>
-        <p>${t('Cette notation (par exemple c.68_69del ou p.Cys61Gly) n\'est pas encore comprise par la recherche. Pour retrouver le variant :')}</p>
-        <ul><li>${t('cherchez le nom du gène, par exemple BRCA1, puis ouvrez la liste de ses variants classés sur sa fiche ;')}</li>
-        <li>${t('ou tapez son numéro rs (par exemple rs80357906), qu\'on trouve dans ClinVar ou dbSNP.')}</li></ul>
-        <div class="notation-gene"></div>
-        <p class="muted small">${t('Ne saisissez pas de données personnelles : ce que vous tapez est envoyé aux bases publiques.')}</p></div>`;
-      // Si le nom du gène est dans la saisie (« BRCA1 c.68_69del »), on propose sa fiche.
-      const word = q.match(/(?:^|[\s:])([A-Za-z][A-Za-z0-9-]{1,9})(?=[:\s]|$)/)?.[1];
-      if (word) {
-        suggestGenesLocal(word).then((g) => {
-          const hit = g.find((x) => !x.typo && x.symbol === word.toUpperCase());
-          const slot = box.querySelector('.notation-gene');
-          if (hit && my === token && slot) slot.innerHTML = `<a class="open-fiche" href="#/gene/${encodeURIComponent(hit.symbol)}">${esc(t('Ouvrir la fiche du gène {symbol}', { symbol: hit.symbol }))} ›</a>`;
-        }).catch(() => {});
-      }
+      // Notation encore incomplète (« c.68 ») : on attend la suite avant d'interroger les services.
+      if (!isCompleteNotation(q)) { showNotationHelp(box, q, my, () => token, 'incomplete'); return; }
+      box.innerHTML = `<div class="notation-help"><p class="kicker">${t('Notation d\'une mutation')}</p>${LOADING}</div>`;
+      api.resolveNotation(q).then(({ mode, results }) => {
+        if (my !== token) return;
+        if (results.length) box.innerHTML = notationResults(mode, results);
+        else showNotationHelp(box, q, my, () => token, 'none');
+      }).catch(() => { if (my === token) showNotationHelp(box, q, my, () => token, 'error'); });
       return;
     }
     // Pour un mot général (« cancer », « tumeur »), les gènes trouvés ont seulement ce mot dans leur nom (« cancer antigen 1 ») :
@@ -397,7 +436,9 @@ export function bindSearch(root, onQuery = () => {}) {
     if ((e.key === 'Tab' || e.key === 'ArrowRight') && proposal && input.selectionEnd === input.value.length) {
       if (accept()) e.preventDefault();
     } else if (e.key === 'Enter') {
-      const first = box.querySelector('a');
+      // Une notation qui donne plusieurs variants ne s'ouvre pas toute seule : on choisit.
+      const links = box.querySelector('.notation-help') ? box.querySelectorAll('.notation-help .hits a') : box.querySelectorAll('a');
+      const first = box.querySelector('.notation-help') ? (links.length === 1 ? links[0] : null) : links[0];
       if (first) location.hash = first.getAttribute('href');
     }
   });

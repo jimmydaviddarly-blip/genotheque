@@ -2,6 +2,7 @@
 // Les réponses restent en mémoire le temps de la session, pour ne pas solliciter les serveurs deux fois.
 
 import { getLang } from './i18n.js';
+import { splitNotation, pickTranscripts, clinvarCandidates, rsByClinvarId, rsFromVep } from './hgvs.js';
 
 const memo = new Map();
 
@@ -12,9 +13,10 @@ function fetchWithTimeout(url, opts = {}, ms = 20000) {
 }
 
 function getJSON(url, opts = {}) {
+  const { timeout, ...fetchOpts } = opts;
   const key = url + (opts.body || '');
   if (memo.has(key)) return memo.get(key);
-  const p = fetchWithTimeout(url, opts).then((r) => {
+  const p = fetchWithTimeout(url, fetchOpts, timeout).then((r) => {
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     return r.json();
   });
@@ -221,6 +223,77 @@ export async function geneOntology(uniprot) {
   const [process, func, place] = await Promise.all([ask('biological_process'), ask('molecular_function'), ask('cellular_component')]);
   const go = { process: process.slice(0, 6), func: func.slice(0, 5), place: place.slice(0, 5) };
   return go.process.length || go.func.length || go.place.length ? go : null;
+}
+
+// ---------- Notation d'une mutation : retrouver le numéro rs ----------
+
+const VARIANT_VALIDATOR = 'https://rest.variantvalidator.org/VariantValidator/variantvalidator/GRCh38';
+const ENSEMBL = 'https://rest.ensembl.org';
+const NLM_VARIANTS = 'https://clinicaltables.nlm.nih.gov/api/variants/v4/search';
+
+// Variations de ClinVar dont le nom contient ce texte (au plus six).
+const clinvarSearch = async (terms) => clinvarCandidates(await getJSON(`${NLM_VARIANTS}?terms=${encodeURIComponent(String(terms).trim())}&maxList=6`));
+
+// Numéro rs que ClinVar associe à chaque variation (une seule requête au NCBI pour toutes).
+async function clinvarRs(ids) {
+  const sures = ids.filter((id) => /^[0-9]+$/.test(id));
+  if (!sures.length) return new Map();
+  try {
+    return rsByClinvarId(await ncbi(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=clinvar&id=${sures.join(',')}&retmode=json`));
+  } catch {
+    return new Map();
+  }
+}
+
+// Repli : Ensembl VEP lit une notation avec transcrit et donne les numéros rs connus. Il est parfois lent
+// (jusqu'à 30 s) et lit une duplication comme une insertion ailleurs : d'où le passage par ClinVar d'abord.
+async function vepRs(hgvs) {
+  try {
+    return rsFromVep(await getJSON(`${ENSEMBL}/vep/human/hgvs/${encodeURIComponent(hgvs)}?content-type=application/json`, { timeout: 40000 }));
+  } catch {
+    return null; // notation refusée par Ensembl, service muet ou trop lent
+  }
+}
+
+// Notation tapée -> variants possibles avec leur numéro rs.
+//  - accession (NM_007294.4:c.68_69del) : lue telle quelle ;
+//  - gène + c. (BRCA1 c.68_69del) : VariantValidator choisit le transcrit MANE Select ;
+//  - sinon, ou si cela ne donne rien : candidats ClinVar (au plus six).
+// Le numéro rs vient de ClinVar quand la variation y est, sinon d'Ensembl.
+// Renvoie { mode: 'direct' | 'candidats', results: [{ hgvs, gene, protein, rs: [...], verified, effect }] }.
+export async function resolveNotation(text) {
+  const { kind, gene, description } = splitNotation(text);
+  let found = [];
+  let mode = 'candidats';
+  if (kind === 'accession') {
+    found = [{ hgvs: description, gene: '', protein: '' }];
+    mode = 'direct';
+  } else if (kind === 'gene' && /^c\./i.test(description)) {
+    try {
+      found = pickTranscripts(await getJSON(`${VARIANT_VALIDATOR}/${encodeURIComponent(`${gene}:${description}`)}/mane_select?content-type=application/json`));
+    } catch { /* repli sur les candidats ClinVar */ }
+    if (found.length) mode = 'direct';
+  }
+  if (mode === 'direct') {
+    // ClinVar connaît-il exactement ce variant ? Une recherche sur la description normalisée.
+    await Promise.all(found.map(async (f) => {
+      const exact = (await clinvarSearch(f.hgvs).catch(() => [])).find((c) => c.hgvs === f.hgvs);
+      if (exact) { f.clinvarId = exact.id; f.protein = f.protein || exact.protein; }
+    }));
+  } else {
+    found = await clinvarSearch(text);
+  }
+  found = found.slice(0, 6);
+  const rsMap = await clinvarRs(found.map((f) => f.clinvarId || f.id).filter(Boolean));
+  const results = [];
+  await Promise.all(found.map(async (f, i) => {
+    const fromClinvar = rsMap.get(f.clinvarId || f.id);
+    if (fromClinvar) { results[i] = { ...f, rs: [fromClinvar], verified: true, effect: '' }; return; }
+    const vep = await vepRs(f.hgvs);
+    if (vep) results[i] = { ...f, gene: f.gene || vep.gene, rs: vep.rs, verified: true, effect: vep.effect };
+    else if (mode === 'direct' && kind !== 'accession') results[i] = { ...f, rs: [], verified: false, effect: '' }; // notation validée par VariantValidator
+  }));
+  return { mode, results: results.filter(Boolean) };
 }
 
 // ---------- Variant ----------

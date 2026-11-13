@@ -1,0 +1,12 @@
+{
+ "NM_007294.4:c.68_69del": {
+  "gene_symbol": "BRCA1",
+  "hgvs_predicted_protein_consequence": {
+   "lrg_slr": "LRG_292p1:p.(E23Vfs*17)",
+   "lrg_tlr": "LRG_292p1:p.(Glu23ValfsTer17)",
+   "slr": "NP_009225.1:p.(E23Vfs*17)",
+   "tlr": "NP_009225.1:p.(Glu23ValfsTer17)"
+  }
+ },
+ "flag": "gene_variant"
+}

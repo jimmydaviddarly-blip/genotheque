@@ -33,6 +33,7 @@ Tapez un nom de gène (BRCA1, ERBB2, CFTR), un variant (rs429358) ou une maladie
 Et aussi :
 
 - **Explorer** : les familles de gènes (HGNC), les maladies rares par classification Orphanet, les cancers par zone du corps sur une silhouette.
+- **Recherche par notation de mutation** : `BRCA1 c.68_69del`, `c.5266dupC`, `p.Cys61Gly`… retrouvent le variant (par ClinVar, VariantValidator et Ensembl).
 - **Aide à la saisie** : dictionnaire de 30 698 noms de gènes officiels embarqué, complétion pendant la frappe et correction des fautes (« erbb » propose ERBB2).
 - **Une explication simple** derrière chaque bouton « ? », pour lire une fiche sans être spécialiste.
 - **Favoris** et **lien de partage** pour chaque fiche.

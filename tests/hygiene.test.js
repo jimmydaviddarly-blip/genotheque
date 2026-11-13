@@ -2,6 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 
 const racine = new URL('../', import.meta.url);
 const lire = (p) => readFileSync(new URL(p, racine), 'utf8');
@@ -18,6 +19,20 @@ test('aucun caractère de contrôle caché dans le code', () => {
     }
   }
   assert.deepEqual(interdits, []);
+});
+
+test('tous les fichiers de code sont du JavaScript valide', () => {
+  // Une apostrophe oubliée dans un texte casse un fichier que les autres tests n'importent pas (la page À propos,
+  // par exemple) : on vérifie la syntaxe de chacun.
+  const invalides = [];
+  for (const f of [...fichiers('src/', ['.js']), ...fichiers('tools/', ['.mjs']), 'vite.config.js', 'public/sw.js']) {
+    try {
+      execFileSync(process.execPath, ['--input-type=module', '--check'], { input: lire(f), stdio: ['pipe', 'pipe', 'pipe'] });
+    } catch (err) {
+      invalides.push(`${f} : ${String(err.stderr).split('\n').find((l) => /Error/.test(l)) || 'erreur de syntaxe'}`);
+    }
+  }
+  assert.deepEqual(invalides, []);
 });
 
 test('la licence est cohérente partout', () => {

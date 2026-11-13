@@ -1,0 +1,51 @@
+{
+ "result": {
+  "17662": {
+   "uid": "17662",
+   "title": "NM_007294.4(BRCA1):c.68_69del (p.Glu23fs)",
+   "variation_set": [
+    {
+     "variation_xrefs": [
+      {
+       "db_source": "dbSNP",
+       "db_id": "80357914"
+      }
+     ]
+    }
+   ]
+  },
+  "17677": {
+   "uid": "17677",
+   "title": "NM_007294.4(BRCA1):c.5266dup (p.Gln1756fs)",
+   "variation_set": [
+    {
+     "variation_xrefs": [
+      {
+       "db_source": "dbSNP",
+       "db_id": "80357906"
+      }
+     ]
+    }
+   ]
+  },
+  "55526": {
+   "uid": "55526",
+   "title": "NM_007294.4(BRCA1):c.5328dup (p.Thr1777fs)",
+   "variation_set": [
+    {
+     "variation_xrefs": [
+      {
+       "db_source": "dbSNP",
+       "db_id": "80357751"
+      }
+     ]
+    }
+   ]
+  },
+  "uids": [
+   "17662",
+   "17677",
+   "55526"
+  ]
+ }
+}

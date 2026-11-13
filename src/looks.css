@@ -275,3 +275,7 @@ h3 .big { font-size: 1.25rem; }
 .goterms { gap: 8px; margin-bottom: 6px; }
 .goterms li { flex-direction: row; justify-content: space-between; align-items: baseline; gap: 12px; }
 .goterms small { flex: none; }
+
+/* Notation d'une mutation : une ligne sans lien quand le variant n'a pas de numéro rs. */
+.hits .no-rs { display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; color: var(--ink); }
+.hits .no-rs small { color: var(--ink-2); }

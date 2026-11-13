@@ -1,0 +1,15 @@
+[
+ {
+  "most_severe_consequence": "frameshift_variant",
+  "colocated_variants": [
+   {
+    "id": "rs80357914"
+   }
+  ],
+  "transcript_consequences": [
+   {
+    "gene_symbol": "BRCA1"
+   }
+  ]
+ }
+]

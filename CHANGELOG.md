@@ -4,6 +4,14 @@ Les numéros suivent le principe `majeur.mineur.correctif` : un changement qui a
 
 *Versions follow `major.minor.patch`. Each version is a GitHub release with its own tag, so any of them can be restored.*
 
+## 0.8.0 · 2026-11-14
+
+### Nouveau
+- **Recherche par notation de mutation** : on peut taper `BRCA1 c.68_69del`, `TP53:c.743G>A`, `NM_007294.4:c.68_69del`, `c.5266dupC` ou `p.Cys61Gly`, et la recherche retrouve le variant et propose sa fiche (numéro rs, gène, transcrit, protéine, effet). Avec le gène, la notation est lue sur son transcrit de référence (MANE Select, par VariantValidator). Sans le gène, plusieurs variants de ClinVar peuvent correspondre : la liste est proposée et c'est à la personne de choisir. Le numéro rs vient de ClinVar (NCBI), et d'Ensembl en secours quand ClinVar ne connaît pas la variation ; un variant valide sans numéro rs est dit tel quel.
+- La recherche attend que la notation dise ce qui change (`c.68` ne déclenche rien), un message explique quoi taper si rien n'est trouvé, et ce que l'on tape n'est envoyé aux services qu'une fois la notation complète.
+- **Confidentialité** : la page À propos et un rappel sous les résultats disent que la notation est envoyée à VariantValidator, à Ensembl et à la NLM, et de ne pas saisir de données personnelles.
+- 60 tests automatiques (la lecture de la notation et des réponses des services est testée sur de vraies réponses enregistrées) et un test qui vérifie la syntaxe de tous les fichiers.
+
 ## 0.7.1 · 2026-11-13
 
 ### Sous le capot (aucun changement visible dans l'appli)
@@ -64,6 +72,14 @@ Première publication : fiches gène, variant et maladie à partir de 24 bases p
 ---
 
 ## English
+
+### 0.8.0 · 2026-11-14
+
+**New**
+- **Search by mutation notation**: you can type `BRCA1 c.68_69del`, `TP53:c.743G>A`, `NM_007294.4:c.68_69del`, `c.5266dupC` or `p.Cys61Gly`, and the search finds the variant and offers its page (rs number, gene, transcript, protein, effect). With the gene, the notation is read on its reference transcript (MANE Select, through VariantValidator). Without the gene, several ClinVar variants may match: the list is offered and the person picks. The rs number comes from ClinVar (NCBI), and from Ensembl as a fallback when ClinVar does not know the variation; a valid variant with no rs number is reported as such.
+- The search waits until the notation says what changes (`c.68` triggers nothing), a message explains what to type when nothing is found, and what you type is only sent to the services once the notation is complete.
+- **Privacy**: the About page and a reminder under the results say the notation is sent to VariantValidator, Ensembl and the NLM, and not to enter personal data.
+- 60 automated tests (notation and service responses are tested on real recorded responses) and a test that checks the syntax of every file.
 
 ### 0.7.1 · 2026-11-13
 

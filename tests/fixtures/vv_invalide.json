@@ -1,0 +1,15 @@
+{
+ "flag": "warning",
+ "validation_warning_1": {
+  "validation_warnings": [
+   "InvalidReferenceError: HGVS variant nomenclature does not allow the use of a gene symbol (BRCA1) in place of a valid reference sequence",
+   "The given coordinate is outside the bounds of the reference sequence. (NM_007294.4)",
+   "LovdSyntaxcheckInvalid: BRCA1:c.99999999del is not syntactically correct, see LovdSyntaxcheckSuggestions for details",
+   "LovdSyntaxcheckSuggestions: [suggestion = BRCA1:c.99999999del, probability = 0.1]",
+   "LovdSyntaxcheckError: Do not use genes as reference sequences. Supported reference sequence IDs are from NCBI Refseq and Ensembl.",
+   "LovdSyntaxcheckError: Position is beyond the possible limits of its type: 99999999.",
+   "LovdSyntaxcheckSource: https://api.lovd.nl/v2/checkHGVS/BRCA1:c.99999999del",
+   "LovdSyntaxcheckLibraryVersion: 1.1.2"
+  ]
+ }
+}

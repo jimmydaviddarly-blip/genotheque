@@ -24,6 +24,7 @@ Le code de Génothèque est sous licence AGPL-3.0-or-later ([LICENSE](LICENSE), 
 | gnomAD v4 (Broad Institute) | Ouvert, citation demandée |
 | Fréquences des projets de populations (1000 Genomes, HapMap, SGDP, HGDP, TOPMed, PAGE, ALSPAC, TwinsUK, GoNL, GenomeDK, FINRISK, Korea1K, KoVariome, ToMMo, Qatar…) | Chiffres agrégés publiés par dbSNP (NCBI), domaine public ; Génothèque ne montre que ces fréquences, jamais de données individuelles |
 | GWAS Catalog (NHGRI et EMBL-EBI) | Ouvert, citation demandée |
+| Notation des mutations : VariantValidator (Freeman et al., Human Mutation, 2018), Ensembl VEP (EMBL-EBI), NLM Clinical Tables (ClinVar) | Services ouverts, citation demandée pour VariantValidator ; données ClinVar du domaine public. Aucune donnée n'est conservée par Génothèque |
 | UniProt | CC BY 4.0 |
 | AlphaFold DB (EMBL-EBI et Google DeepMind) | CC BY 4.0 |
 | STRING | CC BY 4.0 (réseau filtré et redessiné) |

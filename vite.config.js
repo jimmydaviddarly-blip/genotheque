@@ -10,6 +10,8 @@ const APIS = [
   'https://www.wikidata.org', 'https://query.wikidata.org', 'https://fr.wikipedia.org', 'https://en.wikipedia.org',
   'https://eutils.ncbi.nlm.nih.gov', 'https://rest.uniprot.org', 'https://www.ebi.ac.uk', 'https://alphafold.ebi.ac.uk',
   'https://clinicaltrials.gov', 'https://gtexportal.org', 'https://ontology.jax.org', 'https://string-db.org', 'https://reactome.org',
+  // Notation d'une mutation : conversion en numéro rs.
+  'https://rest.variantvalidator.org', 'https://rest.ensembl.org', 'https://clinicaltables.nlm.nih.gov',
 ];
 
 function csp(dev) {

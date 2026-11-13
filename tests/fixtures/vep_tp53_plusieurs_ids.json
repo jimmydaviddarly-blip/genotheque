@@ -1,0 +1,30 @@
+[
+ {
+  "most_severe_consequence": "missense_variant",
+  "colocated_variants": [
+   {
+    "id": "CM920675"
+   },
+   {
+    "id": "COSV52661091"
+   },
+   {
+    "id": "COSV52661580"
+   },
+   {
+    "id": "COSV52675468"
+   },
+   {
+    "id": "COSV52802300"
+   },
+   {
+    "id": "rs11540652"
+   }
+  ],
+  "transcript_consequences": [
+   {
+    "gene_symbol": "TP53"
+   }
+  ]
+ }
+]
