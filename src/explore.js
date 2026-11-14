@@ -254,15 +254,45 @@ export async function renderOrpha(app, arg) {
 
 // ---------- Cancers par zone du corps ----------
 
-const ZONE = (o) => `<circle class="hit" cx="${o.x}" cy="${o.y}" r="14"/><circle class="spot" cx="${o.x}" cy="${o.y}" r="7"/>`;
+const ZONE = (o) => `<circle class="hit" cx="${o.x}" cy="${o.y}" r="13"/><circle class="halo" cx="${o.x}" cy="${o.y}" r="10"/><circle class="spot" cx="${o.x}" cy="${o.y}" r="5.5"/>`;
 
-// Moitié gauche du corps, de la nuque à l'entrejambe ; la droite en est le reflet.
-// Le tracé part et finit 1 unité après l'axe pour que les deux moitiés se recouvrent sans fente.
-const HALF = 'M101 62 L91 62 L90 76 C78 80 61 82 53 89 C45 96 42 108 41 122 C39 142 37 162 36 180 L31 234 '
-  + 'C27 246 28 261 34 266 C40 269 43 257 42 244 L47 188 C50 162 54 136 57 118 '
-  + 'C60 146 66 176 66 198 C62 216 59 232 60 250 C61 280 63 306 65 332 C66 340 68 348 69 356 '
-  + 'C71 378 74 398 76 416 C72 421 68 427 72 431 L93 432 C92 426 91 421 91 416 C91 396 92 374 93 354 '
-  + 'C94 330 96 306 97 290 L99 276 L101 274';
+// Moitié gauche du corps, de la nuque à l'entrejambe ; la droite en est le reflet (piste C « Repères »
+// avec volume, choisie le 2026-11-14). Le tracé part et finit 1 unité après l'axe pour que les deux
+// moitiés se recouvrent sans fente.
+const HALF = 'M101 58 L93 58 C93 63 92 67 92 71 C88 76 74 78 64 82 C54 86 48 94 47 106 C46 124 44 144 42 162 '
+  + 'C40 186 38 206 36 226 C33 234 31 246 33 256 C35 263 41 263 42 256 C43 248 42 238 42 228 C44 208 47 188 49 168 '
+  + 'C51 148 54 130 57 118 C60 132 62 148 63 162 C64 176 64 188 62 200 C59 214 56 228 56 244 C56 264 58 284 61 304 '
+  + 'C63 322 65 336 66 346 C69 362 70 380 71 398 C71 408 72 414 72 420 C66 424 63 430 68 433 L90 433 '
+  + 'C89 426 88 420 88 414 C88 396 89 378 90 362 C90 346 91 334 92 320 C93 300 96 280 98 270 L101 268';
+const HEAD = '<ellipse cx="100" cy="35" rx="18" ry="23"/>';
+
+// Contours discrets des organes, pour situer les points : trachée, poumons, foie, estomac, pancréas,
+// gros intestin, reins (en pointillés : ils sont en arrière) et vessie.
+const ORGAN_LINES = `<path d="M100 74 V96 M100 96 C96 99 92 101 89 104 M100 96 C104 99 108 101 111 104"/>
+  <path d="M95 100 C86 99 75 108 70 124 C66 140 67 151 76 152 C86 153 94 146 95 134 Z"/>
+  <path d="M105 100 C114 99 125 108 130 124 C134 140 133 151 124 152 C118 152 112 148 110 142 C108 136 106 130 105 124 Z"/>
+  <path d="M64 162 C72 155 92 154 106 158 C104 169 92 177 77 179 C68 179 64 172 64 162 Z"/>
+  <path d="M108 150 C118 145 130 151 129 164 C128 176 116 181 108 175 C104 171 104 163 108 160"/>
+  <path d="M86 189 C96 185 110 185 118 189"/>
+  <path d="M76 236 V206 C76 201 79 199 84 199 H116 C121 199 124 201 124 206 V232 C124 240 118 244 110 244"/>
+  <g stroke-dasharray="3 3"><path d="M118 205 C112 207 112 225 118 228 C125 230 128 207 122 205 Z"/><path d="M82 205 C88 207 88 225 82 228 C75 230 72 207 78 205 Z"/></g>
+  <ellipse cx="100" cy="247" rx="9" ry="7"/>`;
+
+// Volume : dégradé, ombre intérieure sur les bords, reflet en haut à gauche et ombre portée. Les couleurs
+// viennent des variables --body-* (thème clair ou sombre).
+const bodyDefs = (k) => `<defs>
+    <linearGradient id="bf-${k}" gradientUnits="userSpaceOnUse" x1="40" y1="20" x2="170" y2="430"><stop offset="0" class="bf1"/><stop offset="1" class="bf2"/></linearGradient>
+    <filter id="bv-${k}" x="-20%" y="-10%" width="140%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="7" result="b"/>
+      <feComposite in="SourceAlpha" in2="b" operator="out" result="edge"/>
+      <feFlood class="bshade"/><feComposite in2="edge" operator="in" result="shade"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2.5" result="b2"/><feOffset in="b2" dx="2.5" dy="2.5" result="b2o"/>
+      <feComposite in="SourceAlpha" in2="b2o" operator="out" result="hl0"/>
+      <feFlood class="bhl"/><feComposite in2="hl0" operator="in" result="hl"/>
+      <feDropShadow class="bdrop" in="SourceGraphic" dx="0" dy="5" stdDeviation="6" result="ds"/>
+      <feMerge><feMergeNode in="ds"/><feMergeNode in="shade"/><feMergeNode in="hl"/></feMerge>
+    </filter>
+  </defs>`;
 
 function zoneLabel(o) {
   const b = labelBox(o, t(o.short || o.fr));
@@ -273,12 +303,13 @@ function zoneLabel(o) {
 
 function bodySvg(active, mini = false) {
   const on = ORGANS.find((o) => o.id === active);
+  const k = mini ? 'm' : 'f';
+  const shape = `<path d="${HALF}"/><path d="${HALF}" transform="translate(200 0) scale(-1 1)"/>${HEAD}`;
   return `<svg class="body ${mini ? 'mini' : ''}" viewBox="${mini ? "0 0 200 440" : "-40 0 280 440"}" role="img" aria-label="${t('Silhouette humaine')}">
-    <g class="outline">
-      <path d="${HALF}"/>
-      <path d="${HALF}" transform="translate(200 0) scale(-1 1)"/>
-      <ellipse cx="100" cy="37" rx="21" ry="26"/>
-    </g>
+    ${bodyDefs(k)}
+    <g class="fill" fill="url(#bf-${k})" filter="url(#bv-${k})">${shape}</g>
+    <g class="outline">${shape}</g>
+    ${mini ? '' : `<g class="organs">${ORGAN_LINES}</g>`}
     ${on && !mini ? zoneLabel(on) : ''}
     ${ORGANS.map((o) => (mini
     ? `<g class="zone">${ZONE(o)}</g>`

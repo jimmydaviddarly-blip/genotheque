@@ -4,6 +4,14 @@ Les numéros suivent le principe `majeur.mineur.correctif` : un changement qui a
 
 *Versions follow `major.minor.patch`. Each version is a GitHub release with its own tag, so any of them can be restored.*
 
+## 0.8.1 · 2026-11-14
+
+### Apparence
+- **Nouvelle silhouette des cancers par zone du corps** : un corps plus fin et plus naturel (épaules tombantes, bras détachés du buste, jambes séparées), avec un effet de volume (dégradé, ombre sur les bords, reflet, ombre portée) en thème clair comme en sombre. Les contours discrets des organes (poumons, foie, estomac, pancréas, gros intestin, reins, vessie) aident à situer les points. Les points sont plus fins, avec un halo ; la zone choisie grossit.
+- Les points des glandes surrénales et des reins sont légèrement déplacés pour tomber à l'intérieur du corps. Les 19 zones restent cliquables, avec leur étiquette.
+
+*English: a new, more natural and slimmer body outline for cancers by body area, with volume shading in light and dark themes and faint organ outlines to help locate each point.*
+
 ## 0.8.0 · 2026-11-14
 
 ### Nouveau

@@ -194,20 +194,31 @@ h3 .big { font-size: 1.3rem; color: var(--accent); }
 .body-card { display: flex; align-items: center; gap: 16px; padding: 12px 16px; border-radius: 14px; background: var(--t-coral-bg); color: var(--t-coral-ink); text-decoration: none; }
 .body-card span { display: flex; flex-direction: column; }
 .body-card small { opacity: 0.85; }
-.body { display: block; }
+.body { display: block; overflow: visible; }
 .body.mini { width: 70px; height: 154px; flex: none; }
 .body-wrap { display: flex; justify-content: center; margin: 4px 0 12px; }
 .body-wrap .body { width: min(86vw, 360px); height: auto; }
-.body .outline { fill: var(--body-fill); stroke: var(--body-line); stroke-width: 1.6; stroke-linejoin: round; }
+.body .outline { fill: none; stroke: var(--body-line); stroke-width: 1.1; stroke-linejoin: round; opacity: 0.85; }
+.body .bf1 { stop-color: var(--body-f1); }
+.body .bf2 { stop-color: var(--body-f2); }
+.body .bshade { flood-color: var(--body-shade); flood-opacity: var(--body-shade-op); }
+.body .bhl { flood-color: var(--body-hl); flood-opacity: var(--body-hl-op); }
+.body .bdrop { flood-color: var(--body-drop); flood-opacity: var(--body-drop-op); }
+.body .organs { fill: none; stroke: var(--organ-line); stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
 .body .hit { fill: transparent; }
-.body .spot { fill: var(--coral); stroke: var(--card); stroke-width: 2.5; transition: r 0.15s; }
-.body .zone:hover .spot { r: 8.5; }
-.body .zone.on .spot { r: 10; fill: var(--t-coral-ink); }
+.body .halo { fill: var(--coral); opacity: 0.16; transition: r 0.15s, opacity 0.15s; }
+.body .spot { fill: var(--coral); stroke: var(--body-ring); stroke-width: 2; transition: r 0.15s; }
+.body .zone:hover .spot { r: 7; }
+.body .zone:hover .halo { r: 12; }
+.body .zone.on .spot { r: 8; fill: var(--t-coral-ink); }
+.body .zone.on .halo { r: 14; opacity: 0.22; }
 .body .zlabel rect { fill: var(--t-coral-ink); }
 .body .zlabel text { fill: var(--t-coral-bg); font: 600 10.5px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
 .body.mini .spot { stroke-width: 1; }
-:root { --body-fill: #ffffff; --body-line: #94a3b8; }
-@media (prefers-color-scheme: dark) { :root { --body-fill: #16213a; --body-line: #475569; } }
+:root { --body-line: #94a3b8; --body-f1: #ffffff; --body-f2: #e3e9fb; --body-shade: #4a5aa8; --body-shade-op: 0.6; --body-hl: #ffffff; --body-hl-op: 0.9;
+  --body-drop: #3b4a9a; --body-drop-op: 0.2; --organ-line: #a9b5e0; --body-ring: #ffffff; }
+@media (prefers-color-scheme: dark) { :root { --body-line: #4a5590; --body-f1: #22305a; --body-f2: #141d3a; --body-shade: #000000; --body-shade-op: 0.55;
+  --body-hl: #9fb2ff; --body-hl-op: 0.28; --body-drop: #000000; --body-drop-op: 0.5; --organ-line: #5d6cb0; --body-ring: #0b1226; } }
 
 .organ-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .ochip { text-decoration: none; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font-size: 0.9rem; }

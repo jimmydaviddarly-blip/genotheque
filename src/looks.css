@@ -9,7 +9,7 @@
   --t-teal-bg: rgba(211, 241, 238, 0.85); --t-teal-ink: #0b4a47;
   --t-violet-bg: rgba(230, 225, 251, 0.85); --t-violet-ink: #35248a;
   --t-coral-bg: rgba(255, 226, 216, 0.85); --t-coral-ink: #7c2a12; --coral: #e05a2b;
-  --body-fill: rgba(255, 255, 255, 0.7); --body-line: #9aa6cc; --tabbar: rgba(255, 255, 255, 0.6);
+  --body-line: #9aa6cc; --tabbar: rgba(255, 255, 255, 0.6);
   --glass-edge: rgba(255, 255, 255, 0.6);
   --halo-1: rgba(43, 181, 166, 0.18); --halo-2: rgba(124, 92, 255, 0.18);
   --radius-lg: 20px;
@@ -27,7 +27,7 @@
     --t-teal-bg: rgba(15, 59, 59, 0.8); --t-teal-ink: #bff4ee;
     --t-violet-bg: rgba(42, 32, 96, 0.8); --t-violet-ink: #dcd5ff;
     --t-coral-bg: rgba(74, 33, 24, 0.8); --t-coral-ink: #ffd9cb; --coral: #fb923c;
-    --body-fill: rgba(255, 255, 255, 0.05); --body-line: #4a5590; --tabbar: rgba(10, 16, 34, 0.7);
+    --body-line: #4a5590; --tabbar: rgba(10, 16, 34, 0.7);
     --glass-edge: rgba(255, 255, 255, 0.1);
     --shadow-1: 0 14px 34px -14px rgba(0, 0, 0, 0.6); --shadow-2: 0 18px 40px -12px rgba(0, 0, 0, 0.7);
     --helix-1: #8ea2ff; --helix-2: #5eead4;
